@@ -40,16 +40,23 @@ public class OpenIdConnProviderTest extends OpenIdConnTestBase {
 		// Create config and provider instances
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
 	    OpenIdConnProvider provider = OpenIdConnProviderNimbus.fromConfiguration(providerConfig);
-	    OpenIdConnAuthenticationRequest authenticationRequestInfo = new OpenIdConnAuthenticationRequest(DUMMY_STATE_VALUE, DUMMY_NONCE_VALUE, Arrays.asList("email"));		
+	    OpenIdConnAuthenticationRequest authenticationRequestInfo = new OpenIdConnAuthenticationRequest(DUMMY_STATE_VALUE, 
+	    																							DUMMY_NONCE_VALUE, 
+	    																							Arrays.asList("email"));	
 	    // Construct the full expected redirect address 
 		String CALLBACK_ADDRESS_URL_ENCODED = URLEncoder.encode(CALLBACK_ADDRESS, "UTF-8");
-		String EXPECTED_REDIRECT_ADDRESS = providerConfig.getAuthorizationEndpointURI() + "?response_type=code&client_id=" + providerConfig.getClientID() + "&redirect_uri=" + CALLBACK_ADDRESS_URL_ENCODED + "&scope=openid+email&state=" + DUMMY_STATE_VALUE + "&nonce=" + DUMMY_NONCE_VALUE;
+		String EXPECTED_REDIRECT_ADDRESS = providerConfig.getAuthorizationEndpointURI() +
+										   "?response_type=code&client_id=" + providerConfig.getClientID() +
+										   	"&redirect_uri=" + CALLBACK_ADDRESS_URL_ENCODED +
+										   	"&scope=openid+email&state=" + DUMMY_STATE_VALUE +
+										   	"&nonce=" + DUMMY_NONCE_VALUE;
 
 		// When
 	    URI generatedRedirectURI = provider.generateAuthenticationRequestRedirectURI(authenticationRequestInfo);
 
 	    // Then
-	    assertEquals("Incorrect Authentication Request CallBack URI", EXPECTED_REDIRECT_ADDRESS, generatedRedirectURI.toString());
+	    assertEquals("Incorrect Authentication Request CallBack URI", EXPECTED_REDIRECT_ADDRESS, 
+	    															  generatedRedirectURI.toString());
 /*
 	    verify(postRequestedFor(urlMatching("/my/resource/[a-z0-9]+"))
 	            .withRequestBody(matching(".*<message>1234</message>.*"))
@@ -68,10 +75,16 @@ public class OpenIdConnProviderTest extends OpenIdConnTestBase {
 		// Create config, provider and authentication request instances
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
 	    OpenIdConnProvider provider = OpenIdConnProviderNimbus.fromConfiguration(providerConfig);
-	    OpenIdConnAuthenticationRequest authenticationRequestInfo = new OpenIdConnAuthenticationRequest(DUMMY_STATE_VALUE, DUMMY_NONCE_VALUE, Arrays.asList("email"));		
+	    OpenIdConnAuthenticationRequest authenticationRequestInfo = new OpenIdConnAuthenticationRequest(DUMMY_STATE_VALUE, 
+	    																						DUMMY_NONCE_VALUE, 
+	    																						Arrays.asList("email"));		
 
 		// Given
-	    String requestURLFromProvider = "http://www.rexcanium.fr/test-OIDC-app/entry-point/OIDC-receive-auth-code?state=" + DUMMY_STATE_VALUE + "&code=" + EXPECTED_CODE + "&authuser=0&session_state=9be4c946ed4c645f46b41aa808680a3bfe994bf0..e899&prompt=consent#";
+	    String requestURLFromProvider = "http://www.rexcanium.fr/test-OIDC-app/entry-point/OIDC-receive-auth-code" +
+	    								"?state=" + DUMMY_STATE_VALUE +
+	    								"&code=" + EXPECTED_CODE +
+	    								"&authuser=0" +
+	    								"&session_state=9be4c946ed4c645f46b41aa808680a3bfe994bf0..e899&prompt=consent#";
 
 	    // When
 	    String extractedCode = provider.extractCodeFromRequestURL(null, authenticationRequestInfo);
@@ -92,18 +105,25 @@ public class OpenIdConnProviderTest extends OpenIdConnTestBase {
 		// Create config and provider instances
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
 	    OpenIdConnProvider provider = OpenIdConnProviderNimbus.fromConfiguration(providerConfig);
-	    OpenIdConnAuthenticationRequest authenticationRequestInfo = new OpenIdConnAuthenticationRequest(DUMMY_STATE_VALUE, DUMMY_NONCE_VALUE, Arrays.asList("email"));		
+	    OpenIdConnAuthenticationRequest authenticationRequestInfo = new OpenIdConnAuthenticationRequest(DUMMY_STATE_VALUE, 
+	    																							DUMMY_NONCE_VALUE, 
+	    																							Arrays.asList("email"));	
 
 	    thrown.expect(OpenIdConnProviderException.class);
 
 	    // Given
-	    String requestURLFromProvider = "http://www.rexcanium.fr/test-OIDC-app/entry-point/OIDC-receive-auth-code?state=" + BAD_STATE_VALUE + "&code=4/4Rhemp3aPWwpWt8CMEKkxUMhOu5BctD5W11l6YkUJG0&authuser=0&session_state=9be4c946ed4c645f46b41aa808680a3bfe994bf0..e899&prompt=consent#";
+	    String requestURLFromProvider = "http://www.rexcanium.fr/test-OIDC-app/entry-point/OIDC-receive-auth-code" +
+	    								"?state=" + BAD_STATE_VALUE +
+	    								"&code=4/4Rhemp3aPWwpWt8CMEKkxUMhOu5BctD5W11l6YkUJG0" +
+	    								"&authuser=0" +
+	    								"&session_state=9be4c946ed4c645f46b41aa808680a3bfe994bf0..e899&prompt=consent#";
 
 	    // When
 	    String extractedCode = provider.extractCodeFromRequestURL(requestURLFromProvider, authenticationRequestInfo);
 
 	    // Then
-	    thrown.expectMessage("The State value was found to be different than expected in the return Request URL. Expected: dummyStateValue Found: incorrectStateValue");
+	    thrown.expectMessage("The State value was found to be different than expected in the return Request URL." +
+	    					 " Expected: dummyStateValue Found: incorrectStateValue");
 	}
 
 	@Test
@@ -121,14 +141,16 @@ public class OpenIdConnProviderTest extends OpenIdConnTestBase {
 	    OpenIdConnProvider provider = OpenIdConnProviderNimbus.fromConfiguration(providerConfig);
 
 		// Given
+	    // If AUTHORISATION_CODE_PARAM_STRING string not in body, WireMock stub will return 404 Not Found
 	    stubPostWithBodyContainingAtEndpointFor200JSONFromFile(providerConfig.getTokenEndpointURI().getPath(),
 				  										 JSONMockResponseToTokenSetRequest_PATH, 
-				  										 AUTHORISATION_CODE_PARAM_STRING); // If string not in body, WireMock stub will return 404 Not Found
+				  										 AUTHORISATION_CODE_PARAM_STRING); 
 	    // When
 	    OpenIdConnTokenSet tokenSet = provider.retrieveTokenSetFromProvider(AUTHORISATION_CODE);
 
 	    // Then
-	    assertEquals("Incorrect ID Token returned from Provider", EXPECTED_ID_TOKEN, tokenSet.getIDToken().getParsedString());
+	    assertEquals("Incorrect ID Token returned from Provider", EXPECTED_ID_TOKEN, 
+	    														  tokenSet.getIDToken().getParsedString());
 	}
 
 	@Test
@@ -147,9 +169,11 @@ public class OpenIdConnProviderTest extends OpenIdConnTestBase {
 	    OpenIdConnProvider provider = OpenIdConnProviderNimbus.fromConfiguration(providerConfig);
 
 		// Given
+	    // If AUTHORISATION_CODE_PARAM_STRING string not in body, WireMock stub will return 404 Not Found
 	    stubPostWithBodyContainingAtEndpointFor200JSONFromFile(providerConfig.getTokenEndpointURI().getPath(),
 				  										 		JSONMockResponseToTokenSetRequest_PATH, 
-				  										 		AUTHORISATION_CODE_PARAM_STRING); // If string not in body, WireMock stub will return 404 Not Found
+				  										 		AUTHORISATION_CODE_PARAM_STRING); 
+	    														
 	    
 	    OpenIdConnTokenSet tokenSet = provider.retrieveTokenSetFromProvider(AUTHORISATION_CODE);
 	    stubGetAtEndpointFor200JSONFromFile(providerConfig.getUserInfoEndpointURI().getPath(),

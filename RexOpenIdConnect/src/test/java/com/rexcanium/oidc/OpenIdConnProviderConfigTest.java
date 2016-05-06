@@ -57,7 +57,8 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 		String INVALID_DOMAIN_URL = "http://local\"host";
 		
 	    thrown.expect(OpenIdConnProviderConfigException.class);
-	    thrown.expectMessage(containsString("Error trying to create Provider configuration URI from ")); // ensure Exception not from other cause
+	    // ensure Exception not from other cause...
+	    thrown.expectMessage(containsString("Error trying to create Provider configuration URI from ")); 
 
 	    // When
 		OpenIdConnProviderConfig providerConfig = OpenIdConnProviderConfigNimbus.fromEndPoint(
@@ -72,7 +73,8 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 		String INVALID_ENDPOINT = "/bad/end\"point";
 		
 	    thrown.expect(OpenIdConnProviderConfigException.class);
-	    thrown.expectMessage(containsString("Error trying to create Provider configuration URI from ")); // ensure Exception not from other cause
+	    // ensure Exception not from other cause...
+	    thrown.expectMessage(containsString("Error trying to create Provider configuration URI from ")); 
 
 	    // When
 		OpenIdConnProviderConfig providerConfig = OpenIdConnProviderConfigNimbus.fromEndPoint(
@@ -109,7 +111,8 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 		stubGetAtEndpointFor200JSONFromFile(PROVIDER_CONFIG_ENDPOINT, JSONMockResponseToConfigRequestBadJSON_PATH);
 
 	    thrown.expect(OpenIdConnProviderConfigException.class);
-	    thrown.expectMessage("Error trying to parse config data returned by Provider"); // ensure Exception not from other cause
+	    // ensure Exception not from other cause...
+	    thrown.expectMessage("Error trying to parse config data returned by Provider"); 
 
 	    // When
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
@@ -119,7 +122,8 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 
 	@Test
 	public void testKeySetLoadedWhenInitialised() throws IOException, URISyntaxException {
-		// These values are those in file JSONMockResponseToConfigRequest_PATH, which will be delivered via HTTP to providerConfig...
+		// These values are those in file JSONMockResponseToConfigRequest_PATH,
+		// which will be delivered via HTTP to providerConfig...
 		String EXPECTED_KEY_ID = "a4163619423dcd3a7361acf2a641bf6f7c9e488a";
 		Base64URL EXPECTED_MODULUS = new Base64URL("vOVVY2TB36Suju1PiOn6i3BXaAppG8vDhI-rjHOY0DYOOOu34OweP0w0noOQ2DsDOoCjKi8ElkKqAzlNTOZcmOvQzGvYZ50KdDSIjhhcy_Vr_gkKZVhCFrgmW47DarJVyAbqgwH9Usn1jbctU9kXiT1ds8AFd6LS_wKTTQCgOv-ZQwqsSsYwcKoKYIC5T8nmCHTg0wEVkAKsdOr9NG8UKt1xhSpb_ouC-spjt23hmgo0B_1vSr-OvS-hZXyezFPBX_I4xtT8eYuezT0sunvelgjIG7mJMwTXGvWGLRWL0lW3yLieHLtuxU-r2-w1ljcMyDoorTN2EKJ1GjrejE0U1w"); // "n" value
 		BigInteger EXPECTED_MODULUS_AS_NUMBER = EXPECTED_MODULUS.decodeToBigInteger(); 
@@ -135,8 +139,10 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
 
 	    // Then
-	    assertEquals("Incorrect Provider Key", EXPECTED_MODULUS_AS_NUMBER, providerConfig.getProviderKey(EXPECTED_KEY_ID).getModulus());
-	    assertEquals("Incorrect Provider Key", EXPECTED_PUBLIC_EXPONENT_AS_NUMBER, providerConfig.getProviderKey(EXPECTED_KEY_ID).getPublicExponent());
+	    assertEquals("Incorrect Provider Key", EXPECTED_MODULUS_AS_NUMBER, 
+	    									   providerConfig.getProviderKey(EXPECTED_KEY_ID).getModulus());
+	    assertEquals("Incorrect Provider Key", EXPECTED_PUBLIC_EXPONENT_AS_NUMBER, 
+	    									   providerConfig.getProviderKey(EXPECTED_KEY_ID).getPublicExponent());
 	}
 
 	@Test
@@ -157,13 +163,16 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
 
 	    // Then
-	    assertEquals("Incorrect Provider Key", EXPECTED_MODULUS_AS_NUMBER, providerConfig.getProviderKey(EXPECTED_KEY_ID).getModulus());
-	    assertEquals("Incorrect Provider Key", EXPECTED_PUBLIC_EXPONENT_AS_NUMBER, providerConfig.getProviderKey(EXPECTED_KEY_ID).getPublicExponent());
+	    assertEquals("Incorrect Provider Key", EXPECTED_MODULUS_AS_NUMBER, 
+	    									   providerConfig.getProviderKey(EXPECTED_KEY_ID).getModulus());
+	    assertEquals("Incorrect Provider Key", EXPECTED_PUBLIC_EXPONENT_AS_NUMBER, 
+	    									   providerConfig.getProviderKey(EXPECTED_KEY_ID).getPublicExponent());
 	}
 
 	@Test
 	public void testKeySetNotLoadedWhenInitialisedWithInvalidKeysEndpoint() throws IOException, URISyntaxException {
-		// These values are those in file JSONMockResponseToConfigRequest_PATH, which will be delivered via HTTP to providerConfig...
+		// These values are those in file JSONMockResponseToConfigRequest_PATH,
+		// which will be delivered via HTTP to providerConfig...
 		Base64URL EXPECTED_MODULUS = new Base64URL("vOVVY2TB36Suju1PiOn6i3BXaAppG8vDhI-rjHOY0DYOOOu34OweP0w0noOQ2DsDOoCjKi8ElkKqAzlNTOZcmOvQzGvYZ50KdDSIjhhcy_Vr_gkKZVhCFrgmW47DarJVyAbqgwH9Usn1jbctU9kXiT1ds8AFd6LS_wKTTQCgOv-ZQwqsSsYwcKoKYIC5T8nmCHTg0wEVkAKsdOr9NG8UKt1xhSpb_ouC-spjt23hmgo0B_1vSr-OvS-hZXyezFPBX_I4xtT8eYuezT0sunvelgjIG7mJMwTXGvWGLRWL0lW3yLieHLtuxU-r2-w1ljcMyDoorTN2EKJ1GjrejE0U1w"); // "n" value
 
 	    // Given
@@ -172,7 +181,8 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 
 		// Note, no KEYSET_ENDPOINT stub requested
 	    thrown.expect(OpenIdConnProviderConfigException.class);
-	    thrown.expectMessage("Error trying to open stream to retrieve RSA Key from Provider"); // ensure Exception not from other cause
+	    // ensure Exception not from other cause...
+	    thrown.expectMessage("Error trying to open stream to retrieve RSA Key from Provider"); 
 
 	    // When
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
@@ -190,7 +200,8 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 		stubGetAtEndpointFor200JSONFromFile(KEYSET_ENDPOINT, JSONMockResponseToKeySetRequestBadJSON_PATH);
 
 	    thrown.expect(OpenIdConnProviderConfigException.class);
-	    thrown.expectMessage("Error trying to parse RSA Key from Provider as Jason data"); // ensure Exception not from other cause
+	    // ensure Exception not from other cause...
+	    thrown.expectMessage("Error trying to parse RSA Key from Provider as Jason data");
 
 	    // When
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
@@ -208,7 +219,8 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 		stubGetAtEndpointFor200JSONFromFile(KEYSET_ENDPOINT, JSONMockResponseToKeySetRequestBadRSAKey_PATH);
 
 	    thrown.expect(OpenIdConnProviderConfigException.class);
-	    thrown.expectMessage("Error trying to parse RSA Key returned by Provider"); // ensure Exception not from other cause
+	    // ensure Exception not from other cause...
+	    thrown.expectMessage("Error trying to parse RSA Key returned by Provider");
 
 	    // When
 		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();

@@ -19,7 +19,8 @@ public interface OpenIdConnProvider {
 	 * @param authenticationRequestInfo information unique to this authentication request, will supply data to be included in the URL
 	 * @return the URI to be used in the HTTP redirect response
 	 */
-	public abstract URI generateAuthenticationRequestRedirectURI(OpenIdConnAuthenticationRequest authenticationRequestInfo);
+	public abstract URI generateAuthenticationRequestRedirectURI(
+												OpenIdConnAuthenticationRequest authenticationRequestInfo);
 
 	/**
 	 * Extract the Code returned in the supplied URL, iff the returned State value matches that retained for this Authentication request
@@ -31,7 +32,8 @@ public interface OpenIdConnProvider {
 	 * 
 	 * @return the Code, which we can now use to retrieve an IdToken from the Provider
 	 */
-	public abstract String extractCodeFromRequestURL(String requestURLFromProvider, OpenIdConnAuthenticationRequest authenticationRequestInfo);
+	public abstract String extractCodeFromRequestURL(String requestURLFromProvider, 
+													 OpenIdConnAuthenticationRequest authenticationRequestInfo);
 
 	/**
 	 * Use the supplied code to retrieve an IdToken (and AccessToken, to allow retrieval of further information about the User) from the Provider

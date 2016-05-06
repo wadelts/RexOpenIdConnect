@@ -100,7 +100,9 @@ public class EntryPoint {
 
 		JSONObject userClaims = oidcService.retrieveUserClaimsFromProvider(tokenSet.getAccessToken().toJSONObject());
 
-		return "OIDC-receive-auth-code processed code returned by Provider. authorizationCode was: " + authorizationCode.toString() + " ID Token header: " + header + " ID Token Claims: " + claims + "\n userClaims=\n" + userClaims.toString();
+		return "OIDC-receive-auth-code processed code returned by Provider. authorizationCode was: " +
+				authorizationCode.toString() + " ID Token header: " + header + " ID Token Claims: " +
+				claims + "\n userClaims=\n" + userClaims.toString();
 	}
 	
 	private static String getFullURL(HttpServletRequest request) {

@@ -4,6 +4,12 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 
+/**
+ * Holds the JWT tokens retrieved from a service provider.
+ * 
+ * @author wadel
+ *
+ */
 public class OpenIdConnTokenSet {
 	private JWT IDToken;
 	private AccessToken accessToken;

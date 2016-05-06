@@ -38,17 +38,22 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 	private URI redirectCallBackURI;
 
 	
-	private OpenIdConnProviderConfigNimbus(String providerConfigAddress, String providerConfigEndpoint, OpenIdConnClientInformation clientInformation, String redirectCallBackAddress) {
+	private OpenIdConnProviderConfigNimbus(String providerConfigAddress, String providerConfigEndpoint, 
+											OpenIdConnClientInformation clientInformation, String redirectCallBackAddress) {
 		
 		try {
 			URI providerConfigURI = new URI(providerConfigAddress);
 			this.providerConfigurationURL = providerConfigURI.resolve(providerConfigEndpoint).toURL();
 		} catch (IllegalArgumentException | URISyntaxException e) {
-			logger.error("constructor: Error trying to create Provider configuration URI from " + providerConfigAddress + providerConfigEndpoint + ": ", e);
-			throw new OpenIdConnProviderConfigException("constructor: Error trying to create Provider configuration URI from " + providerConfigAddress + providerConfigEndpoint + ": ", e);
+			logger.error("constructor: Error trying to create Provider configuration URI from " + providerConfigAddress +
+						providerConfigEndpoint + ": ", e);
+			throw new OpenIdConnProviderConfigException("constructor: Error trying to create Provider" +
+									" configuration URI from " + providerConfigAddress + providerConfigEndpoint + ": ", e);
 		} catch (MalformedURLException e) {
-			logger.error("constructor: Error trying to create Provider configuration URL from " + providerConfigEndpoint + ": ", e);
-			throw new OpenIdConnProviderConfigException("constructor: Error trying to create Provider configuration URL from " + providerConfigAddress + providerConfigEndpoint + ": ", e);
+			logger.error("constructor: Error trying to create Provider configuration URL from " + providerConfigEndpoint +
+						": ", e);
+			throw new OpenIdConnProviderConfigException("constructor: Error trying to create Provider" +
+									" configuration URL from " + providerConfigAddress + providerConfigEndpoint + ": ", e);
 		}
 		
 		this.clientInformation = clientInformation;
@@ -57,7 +62,8 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 			this.redirectCallBackURI = new URI(redirectCallBackAddress);
 		} catch (IllegalArgumentException | URISyntaxException e) {
 			logger.error("constructor: URISyntaxException creating URI from redirectCallBackAddress!" + e.getMessage());
-			throw new OpenIdConnProviderConfigException("constructor: URISyntaxException creating URI from redirectCallBackAddress!" + e.getMessage());
+			throw new OpenIdConnProviderConfigException("constructor: URISyntaxException creating URI from" +
+														" redirectCallBackAddress!" + e.getMessage());
 		}
 	}
 	
@@ -70,8 +76,12 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 	 * @param clientInformation the client ID and secret required to communicate with the Provider
 	 * @param redirectCallBackAddress the address to which the Provider should redirect the user (e.g. via Browser) when supplying the Code
 	 */
-	public static OpenIdConnProviderConfig fromEndPoint(String providerConfigAddress, String providerConfigEndpoint, OpenIdConnClientInformation clientInformation, String redirectCallBackAddress) {
-		return new OpenIdConnProviderConfigNimbus(providerConfigAddress, providerConfigEndpoint, clientInformation, redirectCallBackAddress);
+	public static OpenIdConnProviderConfig fromEndPoint(String providerConfigAddress,
+														String providerConfigEndpoint, 
+														OpenIdConnClientInformation clientInformation,
+														String redirectCallBackAddress) {
+		return new OpenIdConnProviderConfigNimbus(providerConfigAddress, providerConfigEndpoint,
+												  clientInformation, redirectCallBackAddress);
 	}
 
 	@Override
@@ -86,10 +96,12 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 			providerMetadata = getProviderMetadataFromProvider();
 		} catch (IOException e) {
 			logger.error("populateMetaDataAndThen: Error trying open stream on Provider URL", e);
-			throw new OpenIdConnProviderConfigException("populateMetaDataAndThen: Error trying open stream on Provider URL", e);
+			throw new OpenIdConnProviderConfigException("populateMetaDataAndThen: Error trying open" +
+														" stream on Provider URL", e);
 		} catch (ParseException e) {
 			logger.error("populateMetaDataAndThen: Error trying to parse config data returned by Provider", e);
-			throw new OpenIdConnProviderConfigException("populateMetaDataAndThen: Error trying to parse config data returned by Provider", e);
+			throw new OpenIdConnProviderConfigException("populateMetaDataAndThen: Error trying to" +
+														" parse config data returned by Provider", e);
 		}
 		
 		return this;
@@ -119,7 +131,8 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException
 		  | java.text.ParseException e) {
 			logger.error("populateProviderKeySet: Error trying to parse RSA Key returned by Provider", e);
-			throw new OpenIdConnProviderConfigException("populateProviderKeySet: Error trying to parse RSA Key returned by Provider", e);
+			throw new OpenIdConnProviderConfigException("populateProviderKeySet: Error trying to parse" +
+														" RSA Key returned by Provider", e);
 		}
 	}
 
@@ -139,8 +152,10 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 		try {
 			return providerMetadata.getJWKSetURI().toURL().openStream();
 		} catch (IOException e) {
-			logger.error("openConnectionToProviderKeysEndPoint: Error trying to open stream to retrieve RSA Key from Provider", e);
-			throw new OpenIdConnProviderConfigException("openConnectionToProviderKeysEndPoint: Error trying to open stream to retrieve RSA Key from Provider", e);
+			logger.error("openConnectionToProviderKeysEndPoint: Error trying to open stream to retrieve" +
+						 " RSA Key from Provider", e);
+			throw new OpenIdConnProviderConfigException("openConnectionToProviderKeysEndPoint: Error trying" +
+						 								" to open stream to retrieve RSA Key from Provider", e);
 		}
 	}
 
@@ -163,13 +178,15 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 			return JSONObjectUtils.parseJSONObject(jsonString);
 		} catch (java.text.ParseException e) {
 			logger.error("buildJSONObjectFrom: Error trying to parse RSA Key from Provider as Jason data", e);
-			throw new OpenIdConnProviderConfigException("buildJSONObjectFrom: Error trying to parse RSA Key from Provider as Jason data", e);
+			throw new OpenIdConnProviderConfigException("buildJSONObjectFrom: Error trying to parse" +
+														" RSA Key from Provider as Jason data", e);
 		}
 	}
 
 	private Map<String, JSONObject> extractKeysFrom(JSONObject json) {
 		assert json != null;
-		// Find the RSA signing key - I'm assuming here that, if I find a key without a kid, there IS only one, so return immediately.
+		// Find the RSA signing key - I'm assuming here that, if I find
+		// a key without a kid, there IS only one, so return immediately.
 		Map<String, JSONObject> foundKeys = new HashMap<>();
 		JSONArray keyList = (JSONArray) json.get("keys");
 		for (Object key : keyList) {
@@ -178,11 +195,13 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 			    Object kid = k.get("kid");
 			    if (kid == null) {
 			    	foundKeys.put("", k);
-					logger.debug("extractKeysFrom: Retained first-found sig/RSA key from Provider (as no kid was specified): Value=" + k.toString());
+					logger.debug("extractKeysFrom: Retained first-found sig/RSA key from Provider" +
+								 " (as no kid was specified): Value=" + k.toString());
 			    	return foundKeys;
 			    } else {
 			    	foundKeys.put( (String)kid, k );
-					logger.debug("extractKeysFrom: Retained sig/RSA key from Provider (with kid=" + kid + "): Value=" + k.toString());
+					logger.debug("extractKeysFrom: Retained sig/RSA key from Provider" +
+								 " (with kid=" + kid + "): Value=" + k.toString());
 			    }
 		    }
 		}

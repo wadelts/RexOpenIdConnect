@@ -69,6 +69,10 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 		return new OpenIdConnProviderNimbus(providerConfig);
 	}
 
+	/*
+	 * We make nonce null below as not required for Code Flow version,
+	 * (i.e. backend server-to-server retrieval of iDtoken.)
+	 */
 	@Override
 	public URI generateAuthenticationRequestRedirectURI(OpenIdConnAuthenticationRequest authenticationRequestInfo) {
 		
@@ -80,7 +84,7 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 				new ClientID(providerConfig.getClientID()), 
 				providerConfig.getRedirectCallBackURI(), 
 				authenticationRequestInfo.getState(), 
-				authenticationRequestInfo.getNonce()); // make nonce null - not required for Code Flow version (i.e. backend server-to-server retrieval of iDtoken)
+				authenticationRequestInfo.getNonce()); 
 
 		return convertedToURI(authenticationRequest);
 	}
@@ -90,12 +94,14 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 			return authenticationRequest.toURI();
 		} catch (SerializeException e) {
 			logger.error("convertToURI: Error trying to compose Issuer Authorization EndPoint URI. Exception was: " + e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.convertToURI: Error trying to compose Issuer Authorization EndPoint URI", e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.convertToURI: Error trying to compose" +
+												  " Issuer Authorization EndPoint URI", e);
 		}
 	}
 
 	@Override
-	public String extractCodeFromRequestURL(String requestURLFromProvider, OpenIdConnAuthenticationRequest retainedAuthenticationRequestInfo) {
+	public String extractCodeFromRequestURL(String requestURLFromProvider, 
+											OpenIdConnAuthenticationRequest retainedAuthenticationRequestInfo) {
 		
 		AuthenticationResponse authResp = parseAuthenticationResponse(requestURLFromProvider);
 		AuthenticationSuccessResponse successResponse = authenticationResponseEstablishedAsSuccess(authResp);
@@ -109,15 +115,23 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 		try {
 			return AuthenticationResponseParser.parse(new URI(requestURLFromProvider));
 		} catch (ParseException | URISyntaxException e) {
-			logger.error("parseAuthenticationResponse: Error trying to parse AuthorizationCode from return Request URL. Exception was: " + e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.parseAuthenticationResponse: Error trying to parse AuthorizationCode from return Request URL", e);
+			logger.error("parseAuthenticationResponse: Error trying to parse AuthorizationCode from" +
+						 " return Request URL. Exception was: " + e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.parseAuthenticationResponse:" +
+						 						  " Error trying to parse AuthorizationCode from return Request URL", e);
 		}
 	}
 
 	private AuthenticationSuccessResponse authenticationResponseEstablishedAsSuccess(AuthenticationResponse authResp) {
 		if (authResp instanceof AuthenticationErrorResponse) {
 			ErrorObject error = ((AuthenticationErrorResponse) authResp).getErrorObject();
-			String errorMessage = String.format("OpenIdConnProviderNimbus.establishedAuthenticationSuccessResponse: Error returned by the Provider in return Request URL. ErrorCode: %s Description: %s HTTPStatusCode: %s URI: %s", error.getCode(), error.getDescription(), error.getHTTPStatusCode(), error.getURI());
+			String errorMessage = String.format("OpenIdConnProviderNimbus.establishedAuthenticationSuccessResponse:" +
+												" Error returned by the Provider in return Request URL. ErrorCode: %s" +
+												" Description: %s HTTPStatusCode: %s URI: %s", 
+												error.getCode(), 
+												error.getDescription(), 
+												error.getHTTPStatusCode(), 
+												error.getURI());
 			logger.error(errorMessage);
 			throw new OpenIdConnProviderException(errorMessage);
 		} else {
@@ -134,7 +148,9 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 	 */
 	private void verifyStatesMatch(State retainedState, State returnedState) {
 		if (! retainedState.equals(returnedState)) {
-			String errorMessage = String.format("OpenIdConnProviderNimbus.verifyStatesMatch: The State value was found to be different than expected in the return Request URL. Expected: %s Found: %s", retainedState, returnedState);
+			String errorMessage = String.format("OpenIdConnProviderNimbus.verifyStatesMatch: The State value" +
+												" was found to be different than expected in the return Request" +
+												" URL. Expected: %s Found: %s", retainedState, returnedState);
 			logger.error(errorMessage);
 			throw new OpenIdConnProviderException(errorMessage);
 		}
@@ -157,8 +173,11 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 
 	private TokenRequest buildTokenRequest(String authCode) {
 		AuthorizationCode authorizationCode = new AuthorizationCode(authCode);
-		ClientSecretBasic clientSecretBasic = new ClientSecretBasic(new ClientID(providerConfig.getClientID()), new Secret(providerConfig.getClientSecret()));
-		AuthorizationCodeGrant authorizationCodeGrant = new AuthorizationCodeGrant(authorizationCode, providerConfig.getRedirectCallBackURI());
+		ClientSecretBasic clientSecretBasic = new ClientSecretBasic(new ClientID(providerConfig.getClientID()),
+																	new Secret(providerConfig.getClientSecret())
+											  );
+		AuthorizationCodeGrant authorizationCodeGrant = new AuthorizationCodeGrant(authorizationCode, 
+																				   providerConfig.getRedirectCallBackURI());
 		
 		TokenRequest tokenReq = new TokenRequest(providerConfig.getTokenEndpointURI(),
 												 clientSecretBasic,
@@ -173,7 +192,8 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 			logger.info("submitTokenRequest: Response Content was\n" + tokenHTTPResp.getContent());
 		} catch (SerializeException | IOException e) {
 			logger.error("submitTokenRequest: Token request to Provider failed. Error was: " + e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.submitTokenRequest: Token request to Provider failed.", e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.submitTokenRequest:" +
+												  " Token request to Provider failed.", e);
 		}
 		return tokenHTTPResp;
 	}
@@ -184,7 +204,8 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 			tokenResponse = OIDCTokenResponseParser.parse(tokenHTTPResp);
 		} catch (ParseException e) {
 			logger.error("parseTokenResponse: Error trying to parse Token response from Provider.", e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.parseTokenResponse: Error trying to parse Token response from Provider.", e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.parseTokenResponse: Error" +
+												  " trying to parse Token response from Provider.", e);
 		}
 		return tokenResponse;
 	}
@@ -193,11 +214,20 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 		if (tokenResponse instanceof TokenErrorResponse) {
 			ErrorObject error = ((TokenErrorResponse) tokenResponse).getErrorObject();
 			if (error == null) {
-				logger.error("establishedTokenRequestSuccessResponse: Error returned by the Provider. Was TokenErrorResponse but ErrorObject not available!");
-				throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.establishedTokenRequestSuccessResponse: Error returned by the Provider. Was TokenErrorResponse but ErrorObject not available!");
+				logger.error("establishedTokenRequestSuccessResponse: Error returned by the Provider." +
+							 " Was TokenErrorResponse but ErrorObject not available!");
+				throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.establishedTokenRequestSuccessResponse:" +
+							 						  " Error returned by the Provider. Was TokenErrorResponse but" +
+													  " ErrorObject not available!");
 			}
 			else {
-				String errorMessage = String.format("OpenIdConnProviderNimbus.establishedTokenRequestSuccessResponse: Error returned by the Provider. ErrorCode: %s Description: %s HTTPStatusCode: %s URI: %s", error.getCode(), error.getDescription(), error.getHTTPStatusCode(), error.getURI());
+				String errorMessage = String.format("OpenIdConnProviderNimbus.establishedTokenRequestSuccessResponse:" +
+													" Error returned by the Provider. ErrorCode: %s Description: %s" +
+													" HTTPStatusCode: %s URI: %s", 
+													error.getCode(), 
+													error.getDescription(), 
+													error.getHTTPStatusCode(), 
+													error.getURI());
 				logger.error(errorMessage);
 				throw new OpenIdConnProviderException(errorMessage);
 			}
@@ -239,11 +269,15 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 		try {
 		    return jwtDecoder.decodeJWT(idToken);
 		} catch (JOSEException e) {
-			logger.error("verifiedClaims: Error trying to validate or deccrypt IDToken returned from Provider. Token=" + idToken.getParsedString() + " Error was: " + e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.verifiedClaims: Error trying to validate or deccrypt IDToken returned from Provider. ", e);
+			logger.error("verifiedClaims: Error trying to validate or deccrypt IDToken returned from Provider. Token=" +
+						 idToken.getParsedString() + " Error was: " + e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.verifiedClaims: Error trying to validate" +
+						 						  " or deccrypt IDToken returned from Provider. ", e);
 		} catch (java.text.ParseException e) {
-			logger.error("verifiedClaims: Error trying to parse IDToken returned from Provider. Token=" + idToken.getParsedString() + " Error was: " + e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.verifiedClaims: Error trying to parse IDToken returned from Provider.", e);
+			logger.error("verifiedClaims: Error trying to parse IDToken returned from Provider. Token=" +
+						 idToken.getParsedString() + " Error was: " + e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.verifiedClaims: Error trying to parse" +
+						 						  " IDToken returned from Provider.", e);
 		}
 	}
 
@@ -277,7 +311,8 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 			return (BearerAccessToken) AccessToken.parse(token);
 		} catch (ParseException e) {
 			logger.error("parseAccessToken: Error trying to parse Access Token: " + token.toString() + e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.parseAccessToken: Error trying to parse Access Token: " + token.toString() + e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.parseAccessToken: Error trying to parse" +
+												  " Access Token: " + token.toString() + e);
 		}
 	}
 
@@ -288,7 +323,8 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 			logger.info("submitClaimsRequest: Response Content was\n" + userInfoHTTPResp.getContent());
 		} catch (SerializeException | IOException e) {
 			logger.error("submitClaimsRequest: Error trying to send UserInfoRequest to Provider. Error was: " + e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.submitClaimsRequest: Error trying to send UserInfoRequest to Provider: " + e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.submitClaimsRequest: Error trying to send" +
+												  " UserInfoRequest to Provider: " + e);
 		}
 		return userInfoHTTPResp;
 	}
@@ -299,7 +335,8 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 		  userInfoResponse = UserInfoResponse.parse(userInfoHTTPResp);
 		} catch (ParseException e) {
 			logger.error("parseClaimsResponse: Error trying parse userInfoResponse from Provider: " + e);
-			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.parseClaimsResponse: Error trying parse userInfoResponse from Provider: " + e);
+			throw new OpenIdConnProviderException("OpenIdConnProviderNimbus.parseClaimsResponse: Error trying parse" +
+												  " userInfoResponse from Provider: " + e);
 		}
 		return userInfoResponse;
 	}
@@ -307,7 +344,13 @@ public class OpenIdConnProviderNimbus implements OpenIdConnProvider {
 	private UserInfoSuccessResponse claimsResponseEstablishedAsSuccess(UserInfoResponse userInfoResponse) {
 		if (userInfoResponse instanceof UserInfoErrorResponse) {
 			ErrorObject error = ((UserInfoErrorResponse) userInfoResponse).getErrorObject();
-			String errorMessage = String.format("OpenIdConnProviderNimbus.retrieveUserClaimsFromProvider: Error returned by the Provider in Response when trying to retrieve User Claims. ErrorCode: %s Description: %s HTTPStatusCode: %s URI: %s", error.getCode(), error.getDescription(), error.getHTTPStatusCode(), error.getURI());
+			String errorMessage = String.format("OpenIdConnProviderNimbus.retrieveUserClaimsFromProvider: Error" +
+												" returned by the Provider in Response when trying to retrieve" +
+												" User Claims. ErrorCode: %s Description: %s HTTPStatusCode: %s URI: %s", 
+												error.getCode(), 
+												error.getDescription(), 
+												error.getHTTPStatusCode(), 
+												error.getURI());
 			logger.error(errorMessage);
 			throw new OpenIdConnProviderException(errorMessage);
 		} else {

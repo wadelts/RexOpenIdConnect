@@ -16,7 +16,8 @@ import com.rexcanium.oidc.nimbus.OpenIdConnProviderNimbus;
 
 public class OIDCServiceImpl implements OIDCService {
 
-	// Need to create this on receipt of logon request and store in session (or Db if want to scale) until Provider comes back with Code
+	// Need to create this on receipt of logon request and store in session (or Db if want to scale)
+	// until Provider comes back with Code
 	private static OpenIdConnAuthenticationRequest authenticationRequest = new OpenIdConnAuthenticationRequest("email");
 
 //	private String CALLBACK_ADDRESS = "http://localhost:8282/entry-point/OIDC-receive-auth-code";
@@ -24,7 +25,8 @@ public class OIDCServiceImpl implements OIDCService {
 
 	private  OpenIdConnClientInformation clientInformationForGoogle;
 
-	// Note: Google wanted me to give the Redirect URI on the Credentials screen of my project (Jadoub) in Cloud Console, even though specification says we send with Auth redirect.
+	// Note: Google wanted me to give the Redirect URI on the Credentials screen of my project
+	// (Jadoub) in Cloud Console, even though specification says we send with Auth redirect.
 	private  OpenIdConnProviderConfig providerConfig;
 	
 	private OpenIdConnProvider provider;
@@ -38,7 +40,8 @@ public class OIDCServiceImpl implements OIDCService {
 				new Secret("Uf7af_GawLN6hCpv2pX0J4wk")
 		);
 
-		// Note: Google wanted me to give the Redirect URI on the Credentials screen of my project (Jadoub) in Cloud Console, even though specification says we send with Auth redirect.
+		// Note: Google wanted me to give the Redirect URI on the Credentials screen of my project
+		// (Jadoub) in Cloud Console, even though specification says we send with Auth redirect.
 		this.providerConfig = OpenIdConnProviderConfigNimbus.fromEndPoint(
 																	"https://accounts.google.com/",
 																	"/.well-known/openid-configuration",

@@ -33,7 +33,9 @@ public interface OpenIdConnProviderConfig {
 	String getClientSecret();
 
 	/**
-	 * Retrieve a Public key stored against this Provider. The Provider uses these keys to sign JWTs, so we need the key to verify each JWT.
+	 * Retrieve a Public key stored against this Provider.
+	 * The Provider uses these keys to sign JWTs, so we need the key to verify each JWT.
+	 * 
 	 * @param kid The Key ID (supplied by owner of Key) - submit kid="" (empty String) if there is only one key involved for this provider
 	 * @return the Key which was used by the Provider to hash the token
 	 */

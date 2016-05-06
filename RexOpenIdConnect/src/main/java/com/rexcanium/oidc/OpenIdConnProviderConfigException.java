@@ -17,6 +17,7 @@ public class OpenIdConnProviderConfigException extends RuntimeException {
 
 	/**
 	 * Will create a new exception with the given reason, supplying the causing Exception.
+	 * 
 	 * @param reason the text explaining the error
 	 * @param cause the original Exception that caused the error
 	 */

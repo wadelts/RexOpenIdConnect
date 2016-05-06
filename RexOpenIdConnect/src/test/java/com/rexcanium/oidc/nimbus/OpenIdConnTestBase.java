@@ -58,7 +58,9 @@ public class OpenIdConnTestBase {
 	public WireMockRule wireMockRule = new WireMockRule(PROVIDER_PORT);
 
 	protected OpenIdConnProviderConfig createConfigFixture() {
-		// Note: Google wanted me to give the Redirect URI on the Credentials screen of my project (Jadoub) in Cloud Console, even though specification says we send with Auth redirect.
+		// Note: Google wanted me to give the Redirect URI on the Credentials
+		// screen of my project (Jadoub) in Cloud Console, even though
+		// specification says we send with Auth redirect.
 		 return OpenIdConnProviderConfigNimbus.fromEndPoint(
 				 									PROVIDER_DOMAIN_AND_PORT,
 													PROVIDER_CONFIG_ENDPOINT,
@@ -66,8 +68,9 @@ public class OpenIdConnTestBase {
 													CALLBACK_ADDRESS);		
 	}
 
-	protected void stubGetAtEndpointFor200JSONFromFile(String endpoint, String filePath)
-																throws IOException, URISyntaxException {
+	protected void stubGetAtEndpointFor200JSONFromFile(String endpoint, 
+													   String filePath)
+													   throws IOException, URISyntaxException {
 		String jsonResponse = getJSONMockResponseFromFile(filePath);
 		stubFor(get(urlEqualTo(endpoint))
 		//        .withHeader("Accept", equalTo("text/xml"))
@@ -77,8 +80,10 @@ public class OpenIdConnTestBase {
 		            .withBody(jsonResponse)));
 	}
 
-	protected void stubPostWithBodyContainingAtEndpointFor200JSONFromFile(String endpoint, String filePath, String substring)
-																throws IOException, URISyntaxException {
+	protected void stubPostWithBodyContainingAtEndpointFor200JSONFromFile(String endpoint, 
+																		  String filePath, 
+																		  String substring)
+																		  throws IOException, URISyntaxException {
 		String jsonResponse = getJSONMockResponseFromFile(filePath);
 		stubFor(post(urlPathEqualTo(endpoint))
 				.withRequestBody(containing(substring))
