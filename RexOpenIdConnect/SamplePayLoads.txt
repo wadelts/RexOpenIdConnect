@@ -1,0 +1,111 @@
+-------------------------------------------------------------------------------
+Example URLs
+-------------------------------------------------------------------------------
+This is the Redirect URL generated to get the Code from Google...
+https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=136188809562-nj33et1efshs5o643s1i8ddccbl9pf2j.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A8282%2Fauthentication%2FOIDC-receive-auth-code&scope=openid&state=-vDA7c5WgFJYX6-sXFD3vp4QymS3JkTrp_UezQ0UGfM&nonce=3JF4rSHkcWX8TAzirl19x2Jq-wx-ebevMd24sfdPt5A
+
+This was returned from Google as my redirect with Code...
+http://www.rexcanium.fr/test-OIDC-app/entry-point/OIDC-receive-auth-code?state=rRkyCuzr73eM634AqmEY_NLOddR1NIZBNW4oRJjeh74&code=4/4Rhemp3aPWwpWt8CMEKkxUMhOu5BctD5W11l6YkUJG0&authuser=0&session_state=9be4c946ed4c645f46b41aa808680a3bfe994bf0..e899&prompt=consent#
+
+...Note I didn't receive the nonce back - I believe is optional for OpenID Code Flow - might remove from my solution????
+
+
+Note: you get a new Code for each request.
+
+-------------------------------------------------------------------------------
+One run...
+-------------------------------------------------------------------------------
+Response body from Config request to Google...
+INFO : com.rexcanium.oidc.OpenIdConnProviderConfig - OpenIdConnProviderConfig.providerMetadataFromIssuer: len= 1039 providerInfo={
+ "issuer": "https://accounts.google.com",
+ "authorization_endpoint": "https://accounts.google.com/o/oauth2/v2/auth",
+ "token_endpoint": "https://www.googleapis.com/oauth2/v4/token",
+ "userinfo_endpoint": "https://www.googleapis.com/oauth2/v3/userinfo",
+ "revocation_endpoint": "https://accounts.google.com/o/oauth2/revoke",
+ "jwks_uri": "https://www.googleapis.com/oauth2/v3/certs",
+ "response_types_supported": [
+  "code",
+  "token",
+  "id_token",
+  "code token",
+  "code id_token",
+  "token id_token",
+  "code token id_token",
+  "none"
+ ],
+ "subject_types_supported": [
+  "public"
+ ],
+ "id_token_signing_alg_values_supported": [
+  "RS256"
+ ],
+ "scopes_supported": [
+  "openid",
+  "email",
+  "profile"
+ ],
+ "token_endpoint_auth_methods_supported": [
+  "client_secret_post",
+  "client_secret_basic"
+ ],
+ "claims_supported": [
+  "aud",
+  "email",
+  "email_verified",
+  "exp",
+  "family_name",
+  "given_name",
+  "iat",
+  "iss",
+  "locale",
+  "name",
+  "picture",
+  "sub"
+ ],
+ "code_challenge_methods_supported": [
+  "plain",
+  "S256"
+ ]
+}
+
+Response body from JWT Key Set request to Google...
+INFO : com.rexcanium.oidc.OpenIdConnProviderConfig - OpenIdConnProviderConfig.getProviderRSAJWK: len= 908 providerInfo={"keys":[{"kty":"RSA","alg":"RS256","use":"sig","kid":"a4163619423dcd3a7361acf2a641bf6f7c9e488a","n":"vOVVY2TB36Suju1PiOn6i3BXaAppG8vDhI-rjHOY0DYOOOu34OweP0w0noOQ2DsDOoCjKi8ElkKqAzlNTOZcmOvQzGvYZ50KdDSIjhhcy_Vr_gkKZVhCFrgmW47DarJVyAbqgwH9Usn1jbctU9kXiT1ds8AFd6LS_wKTTQCgOv-ZQwqsSsYwcKoKYIC5T8nmCHTg0wEVkAKsdOr9NG8UKt1xhSpb_ouC-spjt23hmgo0B_1vSr-OvS-hZXyezFPBX_I4xtT8eYuezT0sunvelgjIG7mJMwTXGvWGLRWL0lW3yLieHLtuxU-r2-w1ljcMyDoorTN2EKJ1GjrejE0U1w","e":"AQAB"},{"kty":"RSA","alg":"RS256","use":"sig","kid":"38ffb6df92a1bd6ba952f0670caebe1935588048","n":"xlMKWQn1YGUIVkbhoC437sw4FUy-My68znUQrFTFqZDRLmiNEv4nUZhNc1mBP_jo86sQ7OP2bndio0v7QorSgCN_Tre1yJPAxkycVq3J3db8o67e2TUA6XGcIUD2OmL6_276NlnDABiaMkyYfVeSqDD6iTi7ygMskfY-nPDTi5RQpkHOHE03b7Yz65-BI-XnW9dLIVcsobzJJvnBJG7kZcDWJfXAjBZOwX6SIzCTmwLQMYfvjex2t55dLAQC5nRY6gABCeJhe015wEDhMKtn6pMMEEZSVTFEQUZkFRlR7ZkJmvLSIbVs4AYXBXPv4dFl8R46qBQR1Mpc3aJwz4VTFQ","e":"AQAB"}]}
+My original code picked the first key from set, but I'm going to change that to check for kid...
+INFO : com.rexcanium.oidc.OpenIdConnProviderConfig - OpenIdConnProviderConfig.getProviderRSAJWK: chosen sig/RSA key from Provider was {"alg":"RS256","e":"AQAB","n":"vOVVY2TB36Suju1PiOn6i3BXaAppG8vDhI-rjHOY0DYOOOu34OweP0w0noOQ2DsDOoCjKi8ElkKqAzlNTOZcmOvQzGvYZ50KdDSIjhhcy_Vr_gkKZVhCFrgmW47DarJVyAbqgwH9Usn1jbctU9kXiT1ds8AFd6LS_wKTTQCgOv-ZQwqsSsYwcKoKYIC5T8nmCHTg0wEVkAKsdOr9NG8UKt1xhSpb_ouC-spjt23hmgo0B_1vSr-OvS-hZXyezFPBX_I4xtT8eYuezT0sunvelgjIG7mJMwTXGvWGLRWL0lW3yLieHLtuxU-r2-w1ljcMyDoorTN2EKJ1GjrejE0U1w","kty":"RSA","use":"sig","kid":"a4163619423dcd3a7361acf2a641bf6f7c9e488a"}
+
+URL used for Code redirect from Google to me...
+INFO : com.rest.test.EntryPoint - EntryPoint.receiveAuthCode: returningURL=http://www.rexcanium.fr/test-OIDC-app/entry-point/OIDC-receive-auth-code?state=EUGAhcpdSPDzH9qBVAUlotMH-UoT0Q1_o8GC4jE4i8g&code=4/eD4zgh_NU-Wamw6VH_OC7q0ngGSy2mlFiJM0DqzAIXw&authuser=0&session_state=68f7485ea8f91b960e2a274808dc53429da3d14d..8dcd&prompt=consent
+...no body with this redirect...
+INFO : com.rest.test.EntryPoint - EntryPoint.receiveAuthCode: len= 0 returningBody=
+Code in URL was...
+INFO : com.rest.test.EntryPoint - EntryPoint.receiveAuthCode: authorizationCode=4/eD4zgh_NU-Wamw6VH_OC7q0ngGSy2mlFiJM0DqzAIXw
+
+Response body for request to retrieve TokenSet from Google (note I didn't get a RefreshToken) ...
+INFO : com.rexcanium.oidc.OpenIdConnProviderNimbus - OpenIdConnProviderNimbus.retrieveTokenSetFromProvider: Response Content was
+{
+ "access_token": "ya29.hgLGJmm9v9ypHKTu3NohudCrbCSEOw3i0f4mQae-i40h08e6OopA3Ea0NLWyiRpEf-r3",
+ "token_type": "Bearer",
+ "expires_in": 3600,
+ "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImE0MTYzNjE5NDIzZGNkM2E3MzYxYWNmMmE2NDFiZjZmN2M5ZTQ4OGEifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhdF9oYXNoIjoiTjJVd2NZNTJCc1JkWGp4eS1hczVhQSIsImF1ZCI6IjEzNjE4ODgwOTU2Mi1uajMzZXQxZWZzaHM1bzY0M3MxaThkZGNjYmw5cGYyai5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsInN1YiI6IjEwMzM1NzAyOTEyMTM5NTk0ODk0MSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhenAiOiIxMzYxODg4MDk1NjItbmozM2V0MWVmc2hzNW82NDNzMWk4ZGRjY2JsOXBmMmouYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJub25jZSI6ImFCYlpzaUNwX0EyaERMMy1iQVFRQjdvOTdSU1dIYkFOY2FyYXZfUURYX0kiLCJlbWFpbCI6ImxpYW0ud2FkZS50czJAZ21haWwuY29tIiwiaWF0IjoxNDU1Mjg0ODM2LCJleHAiOjE0NTUyODg0MzZ9.B7OL3z_nvuu4Qv7L7xrruhBsvsVPo4QxThBQhDW0nm4nFolN5AXxfwGuuNdzAXYK5mjJIBQ0A_NQgWSJBsQ9-JneokkBAY85TI6mUMvOV_9MH78xWPWVvgl4ZaCVpTLYVTxXheqUNtAMmmsva9jNkVVxs_L9J3iCrlsIK7TsyPITyH3axRWyjpwqcwwmN-dgX9bj_o7cOXI1KjLm5rqIlEw4jDvkjfqVy0RqGBEU0oQjEukw1yFSOv7z4QINfpPQ6aswbXly1EZmpL-IFqBZ08RWAqv_I5-dkr14qwPFYY7FgZ2jG5e7mZzLr2DeOdkqaUhVhVbNA3xfiavV4OdxLA"
+}
+
+Notes:
+Date format (from http://self-issued.info/docs/draft-jones-json-web-token-01.html):
+ 	The number of seconds from 1970-01-01T0:0:0Z as measured in UTC until the desired date/time. See RFC 3339 [RFC3339] for details regarding date/times in general and UTC in particular. 
+IdToken JWT broken out into Header and Claims portions... 	
+INFO : com.rest.test.EntryPoint - EntryPoint.receiveAuthCode: IDToken=com.nimbusds.jwt.SignedJWT@23cdfde8
+INFO : com.rest.test.EntryPoint - EntryPoint.receiveAuthCode: header={"alg":"RS256","kid":"a4163619423dcd3a7361acf2a641bf6f7c9e488a"}
+INFO : com.rest.test.EntryPoint - EntryPoint.receiveAuthCode: claims={"exp":1455288436,"sub":"103357029121395948941","azp":"136188809562-nj33et1efshs5o643s1i8ddccbl9pf2j.apps.googleusercontent.com","email":"liam.wade.ts2@gmail.com","nonce":"aBbZsiCp_A2hDL3-bAQQB7o97RSWHbANcarav_QDX_I","at_hash":"N2UwcY52BsRdXjxy-as5aA","email_verified":true,"aud":["136188809562-nj33et1efshs5o643s1i8ddccbl9pf2j.apps.googleusercontent.com"],"iss":"https:\/\/accounts.google.com","iat":1455284836}
+
+From OpenIdConnProviderNimbus.retrieveUserClaimsFromProvider()...
+User Claims Request Response body from Google...
+{
+ "sub": "103357029121395948941",
+ "name": "",
+ "given_name": "",
+ "family_name": "",
+ "picture": "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg",
+ "email": "liam.wade.ts2@gmail.com",
+ "email_verified": true
+}
+

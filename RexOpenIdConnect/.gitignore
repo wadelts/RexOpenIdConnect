@@ -1,0 +1,35 @@
+# Trivial files
+*.class
+*~
+*.diff
+*.patch
+*.swp
+*.out
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Folders #
+build/
+bin/
+private_doc/
+libs/
+node_modules/
+coverage/
+var/
+
+# Project factets
+.classpath
+.project
+.settings
+.gradle
+gradle.properties
+
+# IntelliJ files
+.idea/
+*.iml
+gradle
+gradlew*
+/Notes.txt
