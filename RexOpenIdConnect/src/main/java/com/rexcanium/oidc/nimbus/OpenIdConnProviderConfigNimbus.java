@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,34 +111,34 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 	}
 	
 	private OIDCProviderMetadata getProviderMetadataFromProvider() throws IOException, ParseException {
+		//Scanner will tokenize entire stream, from beginning to "next beginning"...
+		String REGEX_START_OF_TEXT_MATCHER = "\\A";
+		
 		InputStream stream = providerConfigurationURL.openStream();
 
 		// Read all data from URL
 		String providerInfo = null;
 		try (java.util.Scanner s = new java.util.Scanner(stream)) {
-		  providerInfo = s.useDelimiter("\\A").hasNext() ? s.next() : "";
+		  providerInfo = s.useDelimiter(REGEX_START_OF_TEXT_MATCHER).hasNext() ? s.next() : "";
 		}
 		
-		logger.info("providerMetadataFromProvider: len= " + providerInfo.length() + " providerInfo=" + providerInfo);
+		logger.info("getProviderMetadataFromProvider: len= " + providerInfo.length() + " providerInfo=" + providerInfo);
 
 		return OIDCProviderMetadata.parse(providerInfo);
 
 	}
 
 	private void populateProviderKeySet() {
-		try {
-		    Map<String, JSONObject> keys = getProviderRSAKeys();
-		    for (Entry<String, JSONObject> nextKey : keys.entrySet()) {
-		    	providerKeySet.put(nextKey.getKey(), RSAKey.parse(nextKey.getValue()).toRSAPublicKey());
-		    }
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException
-		  | java.text.ParseException e) {
-			logger.error("populateProviderKeySet: Error trying to parse RSA Key returned by Provider", e);
-			throw new OpenIdConnProviderConfigException("populateProviderKeySet: Error trying to parse" +
-														" RSA Key returned by Provider", e);
-		}
+	    Map<String, JSONObject> keys = getProviderRSAKeys();
+	    
+	    keys.entrySet().forEach(this::parseAndSaveKey);
+	    
+	    if (keys.isEmpty()) {
+	    	logger.error("populateProviderKeySet: No RSA Keys supplied by Provider");
+			throw new OpenIdConnProviderConfigException("populateProviderKeySet: No RSA Keys supplied by Provider");
+	    }
 	}
-
+	
 	private Map<String, JSONObject> getProviderRSAKeys() {
 
 		InputStream is = openConnectionToProviderKeysEndPoint();
@@ -183,30 +186,50 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 		}
 	}
 
+	/*
+	 * Find the RSA signing key - I'm assuming here that, if I find
+	 * a key without a kid (key ID), there should be only one, so,
+	 * if there IS more than one, the last one will be the one saved
+	 * (with key = "").
+ 
+	 */
 	private Map<String, JSONObject> extractKeysFrom(JSONObject json) {
 		assert json != null;
-		// Find the RSA signing key - I'm assuming here that, if I find
-		// a key without a kid, there IS only one, so return immediately.
-		Map<String, JSONObject> foundKeys = new HashMap<>();
-		JSONArray keyList = (JSONArray) json.get("keys");
-		for (Object key : keyList) {
-		    JSONObject k = (JSONObject) key;
-		    if (k.get("use").equals("sig") && k.get("kty").equals("RSA")) {
-			    Object kid = k.get("kid");
-			    if (kid == null) {
-			    	foundKeys.put("", k);
-					logger.debug("extractKeysFrom: Retained first-found sig/RSA key from Provider" +
-								 " (as no kid was specified): Value=" + k.toString());
-			    	return foundKeys;
-			    } else {
-			    	foundKeys.put( (String)kid, k );
-					logger.debug("extractKeysFrom: Retained sig/RSA key from Provider" +
-								 " (with kid=" + kid + "): Value=" + k.toString());
-			    }
-		    }
-		}
+		checkNotNull(json.get("keys"), "keys list in JSON supplied to extractKeysFrom()");
 		
+		JSONArray keyList = (JSONArray) json.get("keys");
+		
+		Map<String, JSONObject> foundKeys = keyList
+			.stream()
+			.map(key -> (JSONObject) key)
+			.filter(isRelevantKeyEntry)
+			.collect(
+				Collectors.toMap(childAsAStringNamed("kid"), k -> k)
+			 );
+			
+		foundKeys.forEach((kid, value) -> {
+			String kidMessage = (("".equals(kid)) ? "kid Not supplied" : "with kid=" + kid);
+			logger.debug(String.format("extractKeysFrom: Retained sig/RSA key from Provider (%s): Value=%s", kidMessage, value.toString()));
+		});
+
 		return foundKeys;
+	}
+	
+	private Predicate<JSONObject> isRelevantKeyEntry = key -> key.get("use").equals("sig") && key.get("kty").equals("RSA") ;
+	
+	private Function<JSONObject, String> childAsAStringNamed(String childName) {
+		return jsonObjectParent -> {return (jsonObjectParent.get(childName) == null) ? "" : (String) jsonObjectParent.get(childName);};
+	}
+
+	private void parseAndSaveKey(Entry<String, JSONObject> nextKey) {
+		try {
+			providerKeySet.put(nextKey.getKey(), RSAKey.parse(nextKey.getValue()).toRSAPublicKey());
+			
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException | java.text.ParseException e) {
+			logger.error("populateProviderKeySet: Error trying to parse RSA Key returned by Provider", e);
+			throw new OpenIdConnProviderConfigException("populateProviderKeySet: Error trying to parse" +
+														" RSA Key returned by Provider", e);
+		}
 	}
 
 	@Override
@@ -236,7 +259,7 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 	
 	@Override
 	public RSAPublicKey getProviderKey(String kid) {
-		if (kid == null) throw new NullPointerException("getProviderKey cannot accept null kid");
+		checkNotNull(kid, "kid supplied to getProviderKey()");
 		return providerKeySet.get(kid);
 	}
 
@@ -258,4 +281,11 @@ public class OpenIdConnProviderConfigNimbus implements OpenIdConnProviderConfig 
 		return clientInformation;
 	}
 
+	private void checkNotNull(Object o, String name) {
+		if (o == null) {
+			String msg = String.format("checkNotNull: Value for %s found to be null!", name);
+			logger.error(msg);
+			throw new NullPointerException("OpenIdConnProviderConfigNimbus." + msg);
+		}
+	}
 }

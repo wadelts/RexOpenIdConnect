@@ -227,4 +227,23 @@ public class OpenIdConnProviderConfigTest extends OpenIdConnTestBase {
 
 	    // Then
 	}
+
+	@Test
+	public void testKeySetNotLoadedWhenInitialisedWithNoKeys() throws IOException, URISyntaxException {
+
+	    // Given
+		// This stub simply to allow OpenIdConnProviderConfigNimbus proceed
+		stubGetAtEndpointFor200JSONFromFile(PROVIDER_CONFIG_ENDPOINT, JSONMockResponseToConfigRequest_PATH);
+
+		stubGetAtEndpointFor200JSONFromFile(KEYSET_ENDPOINT, JSONResponseToKeySetRequestMockNoKeys_PATH);
+
+	    thrown.expect(NullPointerException.class);
+	    // ensure Exception not from other cause...
+	    thrown.expectMessage("Value for keys list in JSON");
+
+	    // When
+		OpenIdConnProviderConfig providerConfig = createConfigFixture().initialise();
+
+	    // Then
+	}
 }

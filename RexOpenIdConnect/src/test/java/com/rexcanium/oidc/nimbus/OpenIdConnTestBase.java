@@ -38,14 +38,15 @@ public class OpenIdConnTestBase {
 	protected String PROVIDER_CONFIG_ENDPOINT = "/.well-known/openid-configuration";
 	protected String KEYSET_ENDPOINT = "/certs";
 
-	protected String JSONMockResponseToConfigRequest_PATH = "C:/Users/wadel/eclipseWorkspaces/workspaceC-Spring/FirstGradle/src/test/resources/JSONResponseToConfigRequestMock.json";
-	protected String JSONMockResponseToConfigRequestBadJSON_PATH = "C:/Users/wadel/eclipseWorkspaces/workspaceC-Spring/FirstGradle/src/test/resources/JSONResponseToConfigRequestMockBadJSON.json";
-	protected String JSONMockResponseToKeySetRequest_PATH = "C:/Users/wadel/eclipseWorkspaces/workspaceC-Spring/FirstGradle/src/test/resources/JSONResponseToKeySetRequestMock.json";
-	protected String JSONMockResponseToKeySetRequestNoKid_PATH = "C:/Users/wadel/eclipseWorkspaces/workspaceC-Spring/FirstGradle/src/test/resources/JSONResponseToKeySetRequestMockNoKid.json";
-	protected String JSONMockResponseToKeySetRequestBadJSON_PATH = "C:/Users/wadel/eclipseWorkspaces/workspaceC-Spring/FirstGradle/src/test/resources/JSONResponseToKeySetRequestMockBadJSON.json";
-	protected String JSONMockResponseToKeySetRequestBadRSAKey_PATH = "C:/Users/wadel/eclipseWorkspaces/workspaceC-Spring/FirstGradle/src/test/resources/JSONResponseToKeySetRequestMockBadRSAKey.json";
-	protected String JSONMockResponseToTokenSetRequest_PATH = "C:/Users/wadel/eclipseWorkspaces/workspaceC-Spring/FirstGradle/src/test/resources/JSONResponseToTokenSetRequestMock.json";
-	protected String JSONMockResponseToUserClaimsRequest_PATH = "C:/Users/wadel/eclipseWorkspaces/workspaceC-Spring/FirstGradle/src/test/resources/JSONResponseToUserClaimsRequestMock.json";
+	protected String JSONMockResponseToConfigRequest_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToConfigRequestMock.json";
+	protected String JSONMockResponseToConfigRequestBadJSON_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToConfigRequestMockBadJSON.json";
+	protected String JSONMockResponseToKeySetRequest_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToKeySetRequestMock.json";
+	protected String JSONMockResponseToKeySetRequestNoKid_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToKeySetRequestMockNoKid.json";
+	protected String JSONMockResponseToKeySetRequestBadJSON_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToKeySetRequestMockBadJSON.json";
+	protected String JSONMockResponseToKeySetRequestBadRSAKey_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToKeySetRequestMockBadRSAKey.json";
+	protected String JSONResponseToKeySetRequestMockNoKeys_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToKeySetRequestMockNoKeys.json";
+	protected String JSONMockResponseToTokenSetRequest_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToTokenSetRequestMock.json";
+	protected String JSONMockResponseToUserClaimsRequest_PATH = "C:/Users/wadel/git/RexOpenIdConnect/RexOpenIdConnect/src/test/resources/JSONResponseToUserClaimsRequestMock.json";
 
 	protected String CALLBACK_ADDRESS = "http://localhost:8282/entry-point/OIDC-receive-auth-code";
 	protected OpenIdConnClientInformation CLIENT_INFO = new OpenIdConnClientInformation(
